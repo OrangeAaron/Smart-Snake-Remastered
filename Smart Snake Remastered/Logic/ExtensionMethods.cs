@@ -5,22 +5,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-    public static class ExtensionMethods
+public static class ExtensionMethods
+{
+    public static Direction ToDirection(this int i)
     {
-        public static Direction ToDirection(this int i)
+        switch (i)
         {
-            switch (i)
-            {
-                case 0:
-                    return Direction.North;
-                case 1:
-                    return Direction.East;
-                case 2:
-                    return Direction.South;
-                case 3:
-                    return Direction.West;
-                default:
-                    throw new Exception("Something went wrong.");
-            }
+            case 0:
+                return Direction.North;
+            case 1:
+                return Direction.East;
+            case 2:
+                return Direction.South;
+            case 3:
+                return Direction.West;
+            default:
+                throw new Exception("Something went wrong.");
         }
     }
+
+    public static int GetBorderIndex(this Grid.GridBox[,] grid, int index)
+    {
+        return grid.GetLength(index) - 1;
+    }
+
+}

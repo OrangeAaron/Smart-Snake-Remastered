@@ -1,4 +1,5 @@
-﻿using Smart_Snake_Remastered.Models;
+﻿using Smart_Snake_Remastered.Logic;
+using Smart_Snake_Remastered.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,8 +15,9 @@ namespace Smart_Snake_Remastered
     public partial class Main : Form
     {
 
-        public Grid FormGrid;
+        public Grid Environment;
         public const uint MAXGRIDSIZE = 40;
+
 
         public Main()
         {
@@ -29,15 +31,83 @@ namespace Smart_Snake_Remastered
         private void Start_Click(object sender, EventArgs e)
         {
             Application.UseWaitCursor = true;
-            FormGrid = new Grid((int)numericUpDown1.Value);
+            Environment = new Grid((int)numericUpDown1.Value);
+            dataGridView1.Rows.Clear();
+            dataGridView1.Columns.Clear();
+            dataGridView1.Refresh();
+            for (int column = 0; column < Environment.BoxMatrix.GetLength(0); column++)
+            {
+                DataGridViewImageColumn col = new DataGridViewImageColumn();
+                col.Image = null;
+                dataGridView1.Columns.Add(col);
+            }
+            for (int row = 0; row < Environment.BoxMatrix.GetLength(1); row++)
+            {
+                var rowID = row;
+                if (row != 0) rowID = dataGridView1.Rows.Add();
+
+                // Grab the new row!
+                DataGridViewRow newRow = dataGridView1.Rows[rowID];
+                newRow.Height = (dataGridView1.ClientRectangle.Height) / Environment.BoxMatrix.GetLength(1);
+                for (int column = 0; column < Environment.BoxMatrix.GetLength(0); column++)
+                {
+                    var item = Environment.BoxMatrix[column, row].ContainedObject;
+                    var image = Properties.Resources.empty;
+                    if (item is Animal)
+                    {
+                        var animal = (Animal)item;
+                        image = Animal.AnimalImage;
+                        var @switch = new Dictionary<Type, Action> {
+                    { typeof(Snake), () => image = Snake.AnimalImage }
+                    };
+                        @switch[typeof(Animal)]();
+                    }
+                    newRow.Cells[column].Value = image;
+                }
+            }
+
+
+            dataGridView1.ClearSelection();
+            List<Animal> lifeforms = Business.CreateLife(Environment, (int)numericUpDown2.Value);
+            Task Life = new Task(() => Business.Live(lifeforms, Environment));
             Application.UseWaitCursor = false;
         }
 
-        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            var value = numericUpDown1.Value;
-            if (value > 0 && value < MAXGRIDSIZE)  Start.Enabled = true;
-            else Start.Enabled = false;
+            if (e.RowIndex > -1 && e.ColumnIndex > -1)
+            {
+                var item = Environment.BoxMatrix[e.RowIndex, e.ColumnIndex].ContainedObject;
+                if (item is Animal)
+                {
+                    var image = Animal.AnimalImage;
+                    var @switch = new Dictionary<Type, Action> {
+                    { typeof(Snake), () => image = Snake.AnimalImage }
+                    };
+                    @switch[item.GetType()]();
+
+                    dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = image;
+                }
+            }
+            else
+            {
+                dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = Properties.Resources.empty;
+            }
+        }
+
+    private void dataGridView1_SizeChanged(object sender, EventArgs e)
+    {
+        foreach (DataGridViewRow row in dataGridView1.Rows)
+        {
+            row.Height = (dataGridView1.ClientRectangle.Height - dataGridView1.ColumnHeadersHeight) / dataGridView1.Rows.Count;
         }
     }
+
+    private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+    {
+        var value = numericUpDown1.Value;
+        if (value > 0 && value < MAXGRIDSIZE) Start.Enabled = true;
+        else Start.Enabled = false;
+    }
+}
 }

@@ -4,26 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Threading.Tasks;
+using Smart_Snake_Remastered;
 using Smart_Snake_Remastered.Logic;
 
 namespace Smart_Snake_Remastered.Models
 {
-
-
-    class Snake
+    public class Snake : Animal
     {
-        //Genetics
-        public uint Vision;
-        public uint Stamina;
-        public uint Intelligence;
-        public uint Boldness;
-        public Random ExtensionGenes;
-
-        //Current State
-        public Point Location;
-        private Direction _direction;
-        private uint _energy;
-        private uint _health;
+        public new static Bitmap AnimalImage = Properties.Resources.snake_graphics;
 
         public Snake(Snake firstParent, Snake secondParent, Grid currentGrid)
         {
@@ -43,9 +31,10 @@ namespace Smart_Snake_Remastered.Models
                 + (secondParent.Boldness * secondParentRatio));
 
             ExtensionGenes = firstParent.ExtensionGenes;
-            _direction = ExtensionGenes.Next(4).ToDirection();
-            _energy = this.Stamina;
-            _health = GetFullHealth(this.Stamina);
+            InitializeAnimal(
+                this.Stamina,
+                ExtensionGenes.Next(4).ToDirection(),
+                GetFullHealth(this.Stamina));
             Location = GetEggSpot(currentGrid, firstParent.Location);
         }
 
@@ -56,54 +45,66 @@ namespace Smart_Snake_Remastered.Models
             this.Intelligence = intelligence;
             this.Boldness = boldness;
             ExtensionGenes = new Random(currentGrid.GridSeed.Next(1000000));
-            _energy = stamina;
-            _direction = ExtensionGenes.Next(4).ToDirection();
-            _health = GetFullHealth(stamina);
+            InitializeAnimal(
+                this.Stamina,
+                ExtensionGenes.Next(4).ToDirection(),
+                GetFullHealth(this.Stamina));
             Location = GetEggSpot(currentGrid);
         }
 
-        public void Act(Grid currentGrid)
+        public override void Act(Grid currentGrid)
         {
-            var motivation = this.ExtensionGenes.Next(101) + (this.Boldness / 10);
-            if (motivation > 50)
+            uint motivation = (uint)(this.ExtensionGenes.Next(101) + (this.Boldness / 10));
+            if (motivation > 50 && CheckEnergy() > 2)
             {
                 ChangeDirection();
-                Move();
+                Move(currentGrid);
+                ExpendEnergy(2);
             }
-            else if(motivation > 20)
+            else if(motivation > 20 && CheckEnergy() > 1)
             {
-                Move();
+                Move(currentGrid);
+                ExpendEnergy(1);
             }
-            else if (motivation > 10)
+            else if (motivation > 10 && CheckEnergy() > 1)
             {
                 ChangeDirection();
+                ExpendEnergy(1);
             }
+
+            GetOlder();
         }
 
         private void Move(Grid currentGrid)
         {
-            Location = Business.MoveDirection(Location, _direction);
-            _energy--;
+            var nextLocation = this.NextLocation(currentGrid);
+            if (currentGrid.BoxMatrix[nextLocation.X, nextLocation.Y].HasObject)
+            {
+                if (currentGrid.BoxMatrix[nextLocation.X, nextLocation.Y].ContainedObject is Animal)
+                {
+                    //do nothing for now
+                }
+            }
+            else
+            {
+                Location = nextLocation;
+                ExpendEnergy(1);
+            }
         }
+        
 
-        private void ChangeDirection()
-        {
-            _direction = ExtensionGenes.Next(4).ToDirection();
-            _energy--;
-        }
-
-        private Point GetEggSpot(Grid currentGrid)
+        private static Point GetEggSpot(Grid currentGrid)
         {
             Point eggLocation = new Point();
             do
             {
-                eggLocation.X = currentGrid.GridSeed.Next(currentGrid.BoxMatrix.GetLength(0) + 1);
-                eggLocation.Y = currentGrid.GridSeed.Next(currentGrid.BoxMatrix.GetLength(1) + 1);
+                eggLocation.X = currentGrid.GridSeed.Next(currentGrid.BoxMatrix.GetBorderIndex(0) + 1);
+                eggLocation.Y = currentGrid.GridSeed.Next(currentGrid.BoxMatrix.GetBorderIndex(1) + 1);
             } while (currentGrid.IsAvailable(eggLocation));
             return eggLocation;
         }
 
-        private Point GetEggSpot(Grid currentGrid, Point initialLocation)
+        private static Point GetEggSpot(Grid currentGrid, Point initialLocation)
         {
             Point eggLocation = new Point(initialLocation.X, initialLocation.Y);
 
@@ -112,13 +113,13 @@ namespace Smart_Snake_Remastered.Models
 
             do
             {
-                for (int x = 0; (x <= radius) && (!currentGrid.IsAvailable(eggLocation)); x++)
+                for (int x = 0; (x < radius) && (!currentGrid.IsAvailable(eggLocation)); x++)
                 {
                     eggLocation.X = eggLocation.X + radius;
                     if (!currentGrid.WithinBounds(eggLocation)) throw new Exception("No room for an egg.");
                 }
 
-                for (int y = 0; (y <= radius) && (!currentGrid.IsAvailable(eggLocation)); y++)
+                for (int y = 0; (y < radius) && (!currentGrid.IsAvailable(eggLocation)); y++)
                 {
                     eggLocation.Y = eggLocation.Y + radius;
                     if (!currentGrid.WithinBounds(eggLocation)) throw new Exception("No room for an egg.");
@@ -129,7 +130,7 @@ namespace Smart_Snake_Remastered.Models
 
             return eggLocation;
         }
-        private uint GetFullHealth(uint stamina)
+        private static uint GetFullHealth(uint stamina)
         {
             return 100 + (stamina / 10);
         }

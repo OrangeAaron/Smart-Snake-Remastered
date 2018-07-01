@@ -19,6 +19,13 @@ namespace Smart_Snake_Remastered.Models
         {
             Lifetime = 0;
             BoxMatrix = new GridBox[sizeXbyX, sizeXbyX];
+            for (int x = 0; x < sizeXbyX; x++)
+            {
+                for (int y = 0; y < sizeXbyX; y++)
+                {
+                    BoxMatrix[x, y] = new GridBox();
+                }
+            }
             GridSeed = new Random(DateTime.Now.Millisecond + DateTime.Now.Day + DateTime.Now.Year);
         }
         
@@ -27,11 +34,12 @@ namespace Smart_Snake_Remastered.Models
             if (BoxMatrix[location.X, location.Y].HasObject = false && WithinBounds(location)) return true;
             return false;
         }
+        
 
         public Boolean WithinBounds(Point location)
         {
-            var maxXCoordinate = this.BoxMatrix.GetLength(0);
-            var maxYCoordinate = this.BoxMatrix.GetLength(1);
+            var maxXCoordinate = this.BoxMatrix.GetBorderIndex(0);
+            var maxYCoordinate = this.BoxMatrix.GetBorderIndex(1);
             var minXCoordinate = 0;
             var minYCoordinate = 0;
 
@@ -41,22 +49,39 @@ namespace Smart_Snake_Remastered.Models
             }
             return false;
         }
-        
+
+        public Point SendToOtherSideOfScreen(Point initialLocation)
+        {
+            Point newLocation = new Point();
+
+            if (initialLocation.X > this.BoxMatrix.GetBorderIndex(0))  newLocation.X = 0;
+            else if (initialLocation.X < 0)  newLocation.X = this.BoxMatrix.GetBorderIndex(0);
+
+            if (initialLocation.Y > this.BoxMatrix.GetBorderIndex(1)) newLocation.Y = 0;
+            else if (initialLocation.Y < 0) newLocation.Y = this.BoxMatrix.GetBorderIndex(1);
+
+
+            return newLocation;
+        }
 
         public class GridBox
         {
+            private object _containedObject;
             public object ContainedObject
             {
-                get { return this; }
+                get { return _containedObject; }
                 set
                 {
-                    ContainedObject = value;
+                    _containedObject = value;
                     if (value == null) HasObject = false;
                     else HasObject = true;
                 }
             }
             public bool HasObject = false;
-
+            public GridBox()
+            {
+                _containedObject = null;
+            }
         }
     }
 }

@@ -10,33 +10,29 @@ namespace Smart_Snake_Remastered.Logic
 {
     public static class Business
     {
-        public static Point MoveDirection(Point location, Direction direction, Grid currentGrid)
+        public static List<Animal> CreateLife(Grid currentGrid, int numberOfSnakes)
         {
-            Point newLocation = new Point(location.X, location.Y);
-            switch (direction)
+            List<Animal> life = new List<Animal>();
+            for (int i = 0; i < numberOfSnakes; i++)
             {
-                case Direction.North:
-                    newLocation.Y = location.Y + 1;
-                    break;
-                case Direction.East:
-                    newLocation.X = location.X + 1;
-                    break;
-                case Direction.South:
-                    newLocation.Y = location.Y - 1;
-                    break;
-                case Direction.West:
-                    newLocation.X = location.X - 1;
-                    break;
-                default:
-                    throw new Exception("Unsupported direction");
+                var snake = new Snake(20, 20, 20, 20, currentGrid);
+                currentGrid.BoxMatrix[snake.Location.X, snake.Location.Y].ContainedObject = snake;
+                life.Add(snake);
             }
-            if (currentGrid.IsAvailable(newLocation))
+            return life;
+        }
+        public static void Live(List<Animal> lifeforms, Grid environment)
+        {
+            try
             {
-                return newLocation;
+                foreach (Animal animal in lifeforms)
+                {
+                    animal.Act(environment);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                //go to other side of screen
+                string error = ex.Message;
             }
         }
     }
