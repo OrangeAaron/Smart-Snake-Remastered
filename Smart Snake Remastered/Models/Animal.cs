@@ -41,6 +41,13 @@ namespace Smart_Snake_Remastered.Models
             return _energy;
         }
 
+        public void UpdateLocationInGrid(int oldLocationX, int oldLocationY, Grid currentGrid)
+        {
+            currentGrid.BoxMatrix[oldLocationX, oldLocationY].ContainedObject = null;
+            currentGrid.BoxMatrix[Location.X, Location.Y].ContainedObject = this;
+        }
+
+
         public void InitializeAnimal(uint energy, Direction dir, uint health)
         {
             _energy = energy;

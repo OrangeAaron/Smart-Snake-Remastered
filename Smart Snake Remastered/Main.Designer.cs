@@ -5,6 +5,7 @@ namespace Smart_Snake_Remastered
 {
     partial class Main
     {
+
         /// <summary>
         /// Required designer variable.
         /// </summary>

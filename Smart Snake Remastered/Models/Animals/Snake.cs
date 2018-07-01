@@ -54,27 +54,29 @@ namespace Smart_Snake_Remastered.Models
 
         public override void Act(Grid currentGrid)
         {
+            var oldLocationX = Location.X;
+            var oldLocationY = Location.Y;
             uint motivation = (uint)(this.ExtensionGenes.Next(101) + (this.Boldness / 10));
             if (motivation > 50 && CheckEnergy() > 2)
             {
                 ChangeDirection();
                 Move(currentGrid);
                 ExpendEnergy(2);
+                UpdateLocationInGrid(oldLocationX, oldLocationY, currentGrid);
             }
             else if(motivation > 20 && CheckEnergy() > 1)
             {
                 Move(currentGrid);
                 ExpendEnergy(1);
+                UpdateLocationInGrid(oldLocationX, oldLocationY, currentGrid);
             }
             else if (motivation > 10 && CheckEnergy() > 1)
             {
                 ChangeDirection();
                 ExpendEnergy(1);
             }
-
             GetOlder();
         }
-
         private void Move(Grid currentGrid)
         {
             var nextLocation = this.NextLocation(currentGrid);
@@ -88,7 +90,6 @@ namespace Smart_Snake_Remastered.Models
             else
             {
                 Location = nextLocation;
-                ExpendEnergy(1);
             }
         }
         
