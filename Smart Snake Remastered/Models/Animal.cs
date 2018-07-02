@@ -21,19 +21,16 @@ namespace Smart_Snake_Remastered.Models
         //Current State
         public bool Dead = false;
         public Point Location;
-        private Direction _direction;
+        public Direction Direction;
         private uint _energy;
         private uint _age;
         private uint _health;
-        
+
 
         public void GetOlder()
         {
             _age++;
-            if (_age % 4 == 0)
-            {
                 _energy++;
-            }
         }
 
         public uint CheckEnergy()
@@ -43,21 +40,28 @@ namespace Smart_Snake_Remastered.Models
 
         public void UpdateLocationInGrid(int oldLocationX, int oldLocationY, Grid currentGrid)
         {
-            currentGrid.BoxMatrix[oldLocationX, oldLocationY].ContainedObject = null;
-            currentGrid.BoxMatrix[Location.X, Location.Y].ContainedObject = this;
+            currentGrid.World[oldLocationX, oldLocationY].ContainedObject = null;
+            currentGrid.World[Location.X, Location.Y].ContainedObject = this;
         }
 
 
         public void InitializeAnimal(uint energy, Direction dir, uint health)
         {
             _energy = energy;
-            _direction = dir;
+            Direction = dir;
             _health = health;
         }
 
         public void ChangeDirection()
         {
-            _direction = ExtensionGenes.Next(4).ToDirection();
+            var leftOrRight = ExtensionGenes.Next(2);
+            var dir = Direction.ToInt();
+            if (leftOrRight == 1)
+                if (dir == 0) Direction = Direction.West;
+                else Direction = (dir - 1).ToDirection();
+            else
+                if (dir == 3) Direction = Direction.North;
+                else Direction = (dir + 1).ToDirection();
         }
 
         public void ExpendEnergy(uint amount)
@@ -108,17 +112,17 @@ namespace Smart_Snake_Remastered.Models
         public Point NextLocation(Grid currentGrid)
         {
             Point newLocation = new Point(Location.X, Location.Y);
-            
-            switch (_direction)
+
+            switch (Direction)
             {
                 case Direction.North:
-                    newLocation.Y = Location.Y + 1;
+                    newLocation.Y = Location.Y - 1;
                     break;
                 case Direction.East:
                     newLocation.X = Location.X + 1;
                     break;
                 case Direction.South:
-                    newLocation.Y = Location.Y - 1;
+                    newLocation.Y = Location.Y + 1;
                     break;
                 case Direction.West:
                     newLocation.X = Location.X - 1;

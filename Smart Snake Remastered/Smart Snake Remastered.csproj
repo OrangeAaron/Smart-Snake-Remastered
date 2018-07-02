@@ -50,7 +50,6 @@
   <ItemGroup>
     <Compile Include="Logic\ExtensionMethods.cs" />
     <Compile Include="Logic\Business.cs" />
-    <Compile Include="Logic\LifeHandler.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
