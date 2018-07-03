@@ -16,7 +16,7 @@ namespace Smart_Snake_Remastered.Logic
             for (int i = 0; i < numberOfSnakes; i++)
             {
                 var snake = new Snake(20, 20, 20, 20, currentGrid);
-                currentGrid.BoxMatrix[snake.Location.X, snake.Location.Y].ContainedObject = snake;
+                currentGrid[snake.Location.X, snake.Location.Y] = snake;
                 life.Add(snake);
             }
             return life;

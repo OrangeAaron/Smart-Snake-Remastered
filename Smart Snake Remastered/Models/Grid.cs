@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.ComponentModel;
+using System.Drawing.Imaging;
 
 namespace Smart_Snake_Remastered.Models
 {
@@ -15,9 +16,21 @@ namespace Smart_Snake_Remastered.Models
         public Bitmap World;
         public Random GridSeed;
 
-        public Grid() : this(10) {}
+        public Color this[int x, int y]
+        {
+            get
+            {
+                return World.GetPixel(x, y);
+            }
+            set
+            {
+               World.SetPixel(x, y, value);
+            }
+        }
+
+        public Grid() : this(new Size(10, 10)) {}
         
-        public Grid(int sizeXbyX)
+        public Grid(Size sizeXbyY)
         {
             Lifetime = 0;
             //BoxMatrix = new GridBox[sizeXbyX, sizeXbyX];
@@ -28,12 +41,13 @@ namespace Smart_Snake_Remastered.Models
             //        BoxMatrix[x, y] = new GridBox();
             //    }
             //}
+            World = new Bitmap(Properties.Resources.arena, sizeXbyY);
             GridSeed = new Random(DateTime.Now.Millisecond + DateTime.Now.Day + DateTime.Now.Year);
         }
 
         public bool IsAvailable(Point location)
         {
-            if (World[location.X, location.Y].HasObject = false && WithinBounds(location)) return true;
+            if (World.GetPixel(location.X, location.Y).HasObject() == false && WithinBounds(location)) return true;
             return false;
         }
         

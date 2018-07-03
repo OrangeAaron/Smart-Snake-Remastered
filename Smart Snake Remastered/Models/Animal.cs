@@ -40,8 +40,8 @@ namespace Smart_Snake_Remastered.Models
 
         public void UpdateLocationInGrid(int oldLocationX, int oldLocationY, Grid currentGrid)
         {
-            currentGrid.World[oldLocationX, oldLocationY].ContainedObject = null;
-            currentGrid.World[Location.X, Location.Y].ContainedObject = this;
+            currentGrid[oldLocationX, oldLocationY] = Main.empty;
+            currentGrid[Location.X, Location.Y] = this;
         }
 
 
@@ -103,11 +103,17 @@ namespace Smart_Snake_Remastered.Models
                 return false;
             }
         }
+        
+        public static implicit operator Color(Animal a)
+        {
+            return Color.Black;
+        }
 
         public void Die()
         {
             Dead = true;
         }
+
         public abstract void Act(Grid currentGrid);
         public Point NextLocation(Grid currentGrid)
         {

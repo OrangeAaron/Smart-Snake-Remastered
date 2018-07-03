@@ -80,9 +80,9 @@ namespace Smart_Snake_Remastered.Models
         private void Move(Grid currentGrid)
         {
             var nextLocation = this.NextLocation(currentGrid);
-            if (currentGrid.BoxMatrix[nextLocation.X, nextLocation.Y].HasObject)
+            if (currentGrid.World.GetPixel(nextLocation.X, nextLocation.Y).HasObject())
             {
-                if (currentGrid.BoxMatrix[nextLocation.X, nextLocation.Y].ContainedObject is Animal)
+                if (currentGrid.World.GetPixel(nextLocation.X, nextLocation.Y) is Animal)
                 {
                     //do nothing for now
                 }
@@ -99,9 +99,9 @@ namespace Smart_Snake_Remastered.Models
             Point eggLocation = new Point();
             do
             {
-                eggLocation.X = currentGrid.GridSeed.Next(currentGrid.BoxMatrix.GetBorderIndex(0) + 1);
-                eggLocation.Y = currentGrid.GridSeed.Next(currentGrid.BoxMatrix.GetBorderIndex(1) + 1);
-            } while (currentGrid.IsAvailable(eggLocation));
+                eggLocation.X = currentGrid.GridSeed.Next(currentGrid.World.GetBorderIndex(0) + 1);
+                eggLocation.Y = currentGrid.GridSeed.Next(currentGrid.World.GetBorderIndex(1) + 1);
+            } while (!currentGrid.IsAvailable(eggLocation));
             return eggLocation;
         }
 
@@ -134,6 +134,11 @@ namespace Smart_Snake_Remastered.Models
         private static uint GetFullHealth(uint stamina)
         {
             return 100 + (stamina / 10);
+        }
+
+        public static implicit operator Color(Snake v)
+        {
+            return Color.DarkRed;
         }
     }
 }

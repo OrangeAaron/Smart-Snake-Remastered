@@ -20,7 +20,7 @@ namespace Smart_Snake_Remastered
         public List<Animal> LifeForms;
         public const uint MAXGRIDSIZE = 100;
         private System.Timers.Timer timer1 = null;
-
+        public static Color empty = Color.Black;
 
         public Main()
         {
@@ -42,85 +42,48 @@ namespace Smart_Snake_Remastered
             //dataGridView1.Columns.Clear();
             //dataGridView1.Refresh();
             Environment = null;
-            var newEnvironment = new Grid((int)numericUpDown1.Value);
+            var size = (int)numericUpDown1.Value;
+            var newEnvironment = new Grid(new Size(size, size));
+
             Environment = newEnvironment;
-            //for (int column = 0; column < Environment.BoxMatrix.GetLength(0); column++)
-            //{
-            //    DataGridViewImageColumn col = new DataGridViewImageColumn();
-            //    col.ImageLayout = DataGridViewImageCellLayout.Stretch;
-            //    col.Image = null;
-            //    dataGridView1.Columns.Add(col);
-            //}
-            ////var matrixRow = Environment.BoxMatrix.GetLength(1) - 1;
-            //for (int row = 0; row < Environment.BoxMatrix.GetLength(1); row++)
-            //{
-            //    var rowID = dataGridView1.Rows.Add();
-            //    DataGridViewRow newRow = dataGridView1.Rows[rowID];
-            //    newRow.Height = (dataGridView1.ClientRectangle.Height) / Environment.BoxMatrix.GetLength(1);
-            //    for (int column = 0; column < Environment.BoxMatrix.GetLength(0); column++)
-            //    {
-            //        var item = Environment.BoxMatrix[column,row].ContainedObject;
-            //        var image = Properties.Resources.empty;
-            //        newRow.Cells[column].Value = image;
-            //    }
-            //  //  matrixRow--;
-            //}
+            Environment.World.InitializeTo(Color.White);
+            using (Graphics g = Graphics.FromImage(Environment.World))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+                g.DrawImage(Environment.World, pictureBox1.Bounds.X, pictureBox1.Bounds.Y, pictureBox1.Width, pictureBox1.Height);
+            }
+            this.Refresh();
 
-
-            //dataGridView1.ClearSelection();
             LifeForms = Business.CreateLife(Environment, (int)numericUpDown2.Value);
             timer1.Enabled = true;
             Start.Enabled = true;
             Application.UseWaitCursor = false;
         }
 
-        //void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        //{
-        //    if (e.RowIndex > -1 && e.ColumnIndex > -1)
-        //    {
-        //        var item = Environment.BoxMatrix[e.ColumnIndex, e.RowIndex].ContainedObject;
-        //        if (item is Animal)
-        //        {
-        //            Bitmap image = null;
-        //            var @switch = new Dictionary<Type, Action> {
-        //            { typeof(Snake), () =>{
-        //                var snake = (Snake)item;
-        //                image =  new Bitmap(Snake.AnimalImage);
-        //                if(snake.Direction == Direction.North) ;
-        //                else if(snake.Direction == Direction.East) image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-        //                else if(snake.Direction == Direction.South) image.RotateFlip(RotateFlipType.Rotate180FlipNone);
-        //                else if(snake.Direction == Direction.West) image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-        //            } }
-        //            };
-        //            @switch[item.GetType()]();
-        //            dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = image;
-        //        }
-        //        else
-        //        {
-        //            dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = Properties.Resources.empty;
-        //        }
-        //    }
-        //}
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            var value = numericUpDown1.Value;
+            if (value > 0 && value < MAXGRIDSIZE) Start.Enabled = true;
+            else Start.Enabled = false;
+        }
 
-    //private void dataGridView1_SizeChanged(object sender, EventArgs e)
-    //{
-    //    foreach (DataGridViewRow row in dataGridView1.Rows)
-    //    {
-    //        row.Height = (dataGridView1.ClientRectangle.Height - dataGridView1.ColumnHeadersHeight) / dataGridView1.Rows.Count;
-    //    }
-    //}
+        private void grid_Paint(System.Object sender, System.Windows.Forms.PaintEventArgs e)
+        {
+            if (Environment != null && Environment.World != null)
+            {
+                e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                e.Graphics.DrawImage(Environment.World, pictureBox1.Bounds.X, pictureBox1.Bounds.Y, pictureBox1.Width, pictureBox1.Height);
+            }
 
-    private void numericUpDown1_ValueChanged(object sender, EventArgs e)
-    {
-        var value = numericUpDown1.Value;
-        if (value > 0 && value < MAXGRIDSIZE) Start.Enabled = true;
-        else Start.Enabled = false;
-    }
-        
-
+        }
         private void timer1_Tick(object sender, EventArgs e)
         {
             Business.Live(LifeForms, Environment);
+            Invoke(new Action(() =>
+            {
+                pictureBox1.Refresh();
+            }));
         }
     }
 }

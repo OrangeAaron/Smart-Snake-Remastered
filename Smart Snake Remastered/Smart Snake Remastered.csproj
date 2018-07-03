@@ -90,7 +90,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\empty.png" />
+    <None Include="Resources\empty.bmp" />
+    <None Include="Resources\arena.bmp" />
     <Content Include="Resources\snake-graphics.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

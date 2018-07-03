@@ -63,9 +63,9 @@ namespace Smart_Snake_Remastered.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap empty {
+        internal static System.Drawing.Bitmap arena {
             get {
-                object obj = ResourceManager.GetObject("empty", resourceCulture);
+                object obj = ResourceManager.GetObject("arena", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
