@@ -18,9 +18,9 @@ namespace Smart_Snake_Remastered
 
         public Grid Environment;
         public List<Animal> LifeForms;
-        public const uint MAXGRIDSIZE = 100;
+        public const uint MAXGRIDSIZE = 10000;
         private System.Timers.Timer timer1 = null;
-        public static Color empty = Color.Black;
+        public static Color empty = Color.White;
 
         public Main()
         {
@@ -36,7 +36,7 @@ namespace Smart_Snake_Remastered
             Start.Enabled = false;
             if (timer1 != null) timer1.Enabled = false;
             timer1 = new System.Timers.Timer();
-            this.timer1.Interval = Convert.ToDouble(400);
+            this.timer1.Interval = Convert.ToDouble(50);
             this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Tick);
             //dataGridView1.Rows.Clear();
             //dataGridView1.Columns.Clear();
@@ -73,6 +73,7 @@ namespace Smart_Snake_Remastered
             if (Environment != null && Environment.World != null)
             {
                 e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
                 e.Graphics.DrawImage(Environment.World, pictureBox1.Bounds.X, pictureBox1.Bounds.Y, pictureBox1.Width, pictureBox1.Height);
             }
 

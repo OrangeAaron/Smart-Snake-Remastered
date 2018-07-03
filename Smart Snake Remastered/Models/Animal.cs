@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Smart_Snake_Remastered.Models
 {
+
     public abstract class Animal
     {
-        public static Bitmap AnimalImage = null;
+        public static Color color = Color.Black;
 
         //Genetics
         public uint Vision;
@@ -106,7 +107,13 @@ namespace Smart_Snake_Remastered.Models
         
         public static implicit operator Color(Animal a)
         {
-            return Color.Black;
+            var col = Color.Black;
+            var @switch = new Dictionary<Type, Action> {
+                        {typeof(Snake), () =>{col = Snake.color;}}
+                         };
+            @switch[a.GetType()]();
+
+            return col;
         }
 
         public void Die()

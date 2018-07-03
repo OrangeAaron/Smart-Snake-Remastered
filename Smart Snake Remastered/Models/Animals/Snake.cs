@@ -11,7 +11,7 @@ namespace Smart_Snake_Remastered.Models
 {
     public class Snake : Animal
     {
-        public new static Bitmap AnimalImage = Properties.Resources.snake_graphics;
+        public static Color color = Color.DarkRed;
 
         public Snake(Snake firstParent, Snake secondParent, Grid currentGrid)
         {
@@ -138,7 +138,13 @@ namespace Smart_Snake_Remastered.Models
 
         public static implicit operator Color(Snake v)
         {
-            return Color.DarkRed;
+            return color;
+        }
+
+        private class SnakeBody
+        {
+            private Snake Head;
+            private SnakeBody NextBody;
         }
     }
 }

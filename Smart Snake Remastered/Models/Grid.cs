@@ -47,7 +47,7 @@ namespace Smart_Snake_Remastered.Models
 
         public bool IsAvailable(Point location)
         {
-            if (World.GetPixel(location.X, location.Y).HasObject() == false && WithinBounds(location)) return true;
+            if (this[location.X, location.Y].HasObject() == false && WithinBounds(location)) return true;
             return false;
         }
         
