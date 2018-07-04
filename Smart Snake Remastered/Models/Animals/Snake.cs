@@ -12,8 +12,13 @@ namespace Smart_Snake_Remastered.Models
     public class Snake : Animal
     {
         private const int STARTLENGTH = 4;
-        public new static Color color = Color.DarkRed;
-        public SnakeBody NextBody;
+        public override Color Visual {
+            get
+            {
+                return Color.DarkRed;
+            }
+        }
+            public SnakeBody NextBody;
 
         public Snake(Snake firstParent, Snake secondParent, Grid currentGrid)
         {
@@ -41,11 +46,7 @@ namespace Smart_Snake_Remastered.Models
             Location = GetEggSpot(currentGrid, firstParent.Location);
             AddLength(STARTLENGTH - 1);
         }
-
-        public static implicit operator Color(Snake s)
-        {
-            return Snake.color;
-        }
+        
 
         public Snake(uint vision, uint stamina, uint intelligence, uint boldness, Grid currentGrid)
         {
@@ -62,49 +63,39 @@ namespace Smart_Snake_Remastered.Models
             AddLength(STARTLENGTH - 1);
         }
 
-        public override void Act(List<Animal> lifeforms, Grid currentGrid)
+        public override Animal GiveBirth(Animal father, Grid currentGrid)
         {
+            return new Snake(this, (Snake)father, currentGrid);
+        }
+
+        public override List<Birth> Act(List<Animal> lifeforms, Grid currentGrid)
+        {
+            var newLifeList = new List<Birth>();
             var oldList = GetAllLocations();
             uint motivation = (uint)(this.ExtensionGenes.Next(101));
             if (motivation > 50 && CheckEnergy() > 10)
             {
                 ChangeDirection();
-                Move(lifeforms, currentGrid);
+                newLifeList = Move(lifeforms, currentGrid);
                     ExpendEnergy(10);
                     var newList = GetAllLocations();
-                    UpdateLocationInGrid(oldList, newList, currentGrid);
+                    currentGrid.UpdateLocationInGrid(oldList, newList, this);
             }
             else
             {
-                Move(lifeforms, currentGrid);
+                newLifeList = Move(lifeforms, currentGrid);
                 var newList = GetAllLocations();
-                UpdateLocationInGrid(oldList, newList, currentGrid);
+                currentGrid.UpdateLocationInGrid(oldList, newList, this);
             }
             GetOlder();
-        }
-
-        public override void Die(List<Animal> lifeforms, Grid currentGrid)
-        {
-           // var deleteList = new List<Point>();
-           //deleteList.Add(this.Location);
-
-           // var nextPartToDie = this.NextBody;
-           // while (nextPartToDie != null)
-           // {
-           //     deleteList.Add(nextPartToDie.Location);
-           //     nextPartToDie = nextPartToDie.NextBody;
-           // }
-           // var flag = lifeforms.Remove(this);
-           // if (flag is false)
-           //     throw new Exception("Couldn't find snake to remove it.");
-           // DeleteFromGrid(deleteList, currentGrid);
+            return newLifeList;
         }
 
         public override List<Point> GetAllLocations()
         {
             var result = new List<Point>();
 
-            if (this == null)
+            if (this != null)
             {
                 result.Add(this.Location);
                 SnakeBody current = this.NextBody;
@@ -156,20 +147,21 @@ namespace Smart_Snake_Remastered.Models
             }
         }
 
-        private void Move(List<Animal> lifeforms, Grid currentGrid)
+        private List<Birth> Move(List<Animal> lifeforms, Grid currentGrid)
         {
+            var newLifeList = new List<Birth>();
             var nextLocation = this.NextLocation(currentGrid);
             var nextLocationObject = currentGrid[nextLocation.X, nextLocation.Y];
             if (nextLocationObject.HasObject())
             {
-                if (nextLocationObject == this)
+                if (nextLocationObject.Equivalent(this))
                 {
                     var isSnakeHead = false;
                     foreach (Snake s in lifeforms)
                     {
                         if (nextLocation == s.Location)
                         {
-                            //   lifeforms.Add(new Snake(this, s, currentGrid));
+                            newLifeList.Add(new Birth(this, s));
                             ChangeDirection();
                             isSnakeHead = true;
                             break;
@@ -183,6 +175,7 @@ namespace Smart_Snake_Remastered.Models
                 MoveBodyAlongOverHead();
                 Location = nextLocation;
             }
+            return newLifeList;
         }
 
         private void MoveBodyAlongOverHead()
@@ -243,34 +236,6 @@ namespace Smart_Snake_Remastered.Models
         private static uint GetFullHealth(uint stamina)
         {
             return 100 + (stamina / 10);
-        }
-
-
-        public static bool operator ==(Snake x, Color y)
-        {
-            return Snake.color.ToArgb() == y.ToArgb();
-        }
-        public static bool operator !=(Snake x, Color y)
-        {
-            return Snake.color.ToArgb() != y.ToArgb();
-        }
-        public static bool operator ==(Color y, Snake x)
-        {
-            return Snake.color.ToArgb() == y.ToArgb();
-        }
-        public static bool operator !=(Color y, Snake x)
-        {
-            return Snake.color.ToArgb() != y.ToArgb();
-        }
-
-        public override int GetHashCode()
-        {
-            return 255711924 + EqualityComparer<SnakeBody>.Default.GetHashCode(NextBody);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj != null && Snake.ReferenceEquals(this, obj);
         }
 
         public class SnakeBody

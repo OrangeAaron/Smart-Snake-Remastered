@@ -41,20 +41,32 @@ namespace Smart_Snake_Remastered.Models
         public Grid(Size sizeXbyY)
         {
             Lifetime = 0;
-            //BoxMatrix = new GridBox[sizeXbyX, sizeXbyX];
-            //for (int x = 0; x < sizeXbyX; x++)
-            //{
-            //    for (int y = 0; y < sizeXbyX; y++)
-            //    {
-            //        BoxMatrix[x, y] = new GridBox();
-            //    }
-            //}
             WorldLock.WaitOne();
             World = new Bitmap(Properties.Resources.arena, sizeXbyY);
             WorldLock.ReleaseMutex();
             GridSeed = new Random(DateTime.Now.Millisecond + DateTime.Now.Day + DateTime.Now.Year);
         }
+        
+        public void DeleteFromGrid(List<Point> deleteList)
+        {
+            foreach (Point p in deleteList.Distinct())
+            {
+                this[p.X, p.Y] = Main.empty;
+            }
+        }
 
+
+        public void UpdateLocationInGrid(List<Point> deleteList, List<Point> addList, Animal ani)
+        {
+            foreach (Point p in deleteList.Except(addList))
+            {
+                this[p.X, p.Y] = Main.empty;
+            }
+            foreach (Point p in addList.Except(deleteList))
+            {
+                this[p.X, p.Y] = ani.Visual;
+            }
+        }
 
         public void InitializeTo(Color color)
         {

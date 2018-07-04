@@ -31,5 +31,11 @@ public static class ExtensionMethods
         else
             return true;
     }
-
+    public static bool Equivalent(this Color pixel, Animal ani)
+    {
+        if (pixel.ToArgb() == ani.Visual.ToArgb())
+            return true;
+        else
+            return false;
+    }
 }

@@ -10,7 +10,8 @@ namespace Smart_Snake_Remastered.Models
 
     public abstract class Animal
     {
-        public static Color color = Color.Black;
+        public abstract Color Visual { get;}
+
 
         //Genetics
         public uint Vision;
@@ -40,27 +41,6 @@ namespace Smart_Snake_Remastered.Models
         }
 
         public abstract List<Point> GetAllLocations();
-
-        public void UpdateLocationInGrid(List<Point> deleteList, List<Point> addList, Grid currentGrid)
-        {
-            foreach (Point p in deleteList.Except(addList))
-            {
-                currentGrid[p.X, p.Y] = Main.empty;
-            }
-            foreach (Point p in addList.Except(deleteList))
-            {
-                currentGrid[p.X, p.Y] = this;
-            }
-        }
-
-
-        public void DeleteFromGrid(List<Point> deleteList, Grid currentGrid)
-        {
-            foreach (Point p in deleteList.Distinct())
-            {
-                currentGrid[p.X, p.Y] = Main.empty;
-            }
-        }
 
         public void InitializeAnimal(uint energy, Direction dir, uint health)
         {
@@ -116,25 +96,14 @@ namespace Smart_Snake_Remastered.Models
             }
             else
             {
-                Die(lifeforms, currentGrid);
                 return false;
             }
         }
-        
-        public static implicit operator Color(Animal a)
-        {
-            var col = Color.Black;
-            var @switch = new Dictionary<Type, Action> {
-                        {typeof(Snake), () =>{col = Snake.color;}}
-                         };
-            @switch[a.GetType()]();
 
-            return col;
-        }
+        public abstract Animal GiveBirth(Animal father, Grid currentGrid);
 
-        public abstract void Die(List<Animal> lifeforms, Grid currentGrid);
+        public abstract List<Birth> Act(List<Animal> lifeforms, Grid currentGrid);
 
-        public abstract void Act(List<Animal> lifeforms, Grid currentGrid);
         public Point NextLocation(Grid currentGrid)
         {
             Point newLocation = new Point(Location.X, Location.Y);
@@ -163,6 +132,18 @@ namespace Smart_Snake_Remastered.Models
             else
             {
                 return currentGrid.SendToOtherSideOfScreen(newLocation);
+            }
+        }
+
+        public class Birth
+        {
+            public Animal Mother;
+            public Animal Father;
+
+            public Birth(Animal m, Animal f)
+            {
+                Mother = m;
+                Father = f;
             }
         }
     }

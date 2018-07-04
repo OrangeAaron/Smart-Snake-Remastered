@@ -5,6 +5,7 @@ using System.Text;
 using System.Drawing;
 using System.Threading.Tasks;
 using Smart_Snake_Remastered.Models;
+using static Smart_Snake_Remastered.Models.Animal;
 
 namespace Smart_Snake_Remastered.Logic
 {
@@ -16,7 +17,7 @@ namespace Smart_Snake_Remastered.Logic
             for (int i = 0; i < numberOfSnakes; i++)
             {
                 var snake = new Snake(20, 20, 20, 20, currentGrid);
-                currentGrid[snake.Location.X, snake.Location.Y] = snake;
+                currentGrid[snake.Location.X, snake.Location.Y] = snake.Visual;
                 life.Add(snake);
             }
             return life;
@@ -25,11 +26,25 @@ namespace Smart_Snake_Remastered.Logic
         {
             try
             {
-                foreach (Animal animal in lifeforms)
+                if (lifeforms.Count != 0)
                 {
-                    animal.Act(lifeforms, environment);
-                    if (animal.Dead == true)
-                        animal.Die(lifeforms, environment);
+                    var newLives = new List<Birth>();
+                    var newDeaths = new List<Animal>();
+                    foreach (Animal animal in lifeforms)
+                    {
+                        newLives = animal.Act(lifeforms, environment);
+                        if (animal.Dead == true)
+                            newDeaths.Add(animal);
+                    }
+                    foreach(Birth birth in newLives)
+                    {
+                       lifeforms.Add(birth.Mother.GiveBirth(birth.Father, environment));
+                    }
+                    foreach (Animal deadAnimal in newDeaths)
+                    {
+                        lifeforms.Remove(deadAnimal);
+                        environment.DeleteFromGrid(deadAnimal.GetAllLocations());
+                    }
                 }
             }
             catch (Exception ex)
