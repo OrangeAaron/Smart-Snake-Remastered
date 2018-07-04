@@ -23,15 +23,15 @@ namespace Smart_Snake_Remastered.Models
         public bool Dead = false;
         public Point Location;
         public Direction Direction;
-        private uint _energy;
-        private uint _age;
-        private uint _health;
+        protected uint _energy;
+        protected uint _age;
+        protected uint _health;
 
 
-        public void GetOlder()
+        public virtual void GetOlder()
         {
             _age++;
-                _energy++;
+            _energy++;
         }
 
         public uint CheckEnergy()
@@ -39,12 +39,28 @@ namespace Smart_Snake_Remastered.Models
             return _energy;
         }
 
-        public void UpdateLocationInGrid(int oldLocationX, int oldLocationY, Grid currentGrid)
+        public abstract List<Point> GetAllLocations();
+
+        public void UpdateLocationInGrid(List<Point> deleteList, List<Point> addList, Grid currentGrid)
         {
-            currentGrid[oldLocationX, oldLocationY] = Main.empty;
-            currentGrid[Location.X, Location.Y] = this;
+            foreach (Point p in deleteList)
+            {
+                currentGrid[p.X, p.Y] = Main.empty;
+            }
+            foreach (Point p in addList)
+            {
+                currentGrid[p.X, p.Y] = this;
+            }
         }
 
+
+        public void DeleteBodyFromGrid(List<Point> deleteList, Grid currentGrid)
+        {
+            foreach (Point p in deleteList)
+            {
+                currentGrid[p.X, p.Y] = Main.empty;
+            }
+        }
 
         public void InitializeAnimal(uint energy, Direction dir, uint health)
         {
@@ -75,7 +91,7 @@ namespace Smart_Snake_Remastered.Models
             else throw new InvalidOperationException("Animal tried to expend energy it couldn't have.");
         }
 
-        public void MotivatedExpendEnergy(uint amount)
+        public void MotivatedExpendEnergy(List<Animal> lifeforms, Grid currentGrid, uint amount)
         {
             var newEnergy = _energy - amount;
             if (newEnergy >= 0)
@@ -85,12 +101,12 @@ namespace Smart_Snake_Remastered.Models
             else
             {
                 var subtractHealthForEnergy = newEnergy * -1;
-                LowerHealth((uint)subtractHealthForEnergy);
+                LowerHealth(lifeforms, currentGrid,(uint)subtractHealthForEnergy);
                 _energy = 0;
             }
         }
 
-        public bool LowerHealth(uint amount)
+        public bool LowerHealth(List<Animal> lifeforms, Grid currentGrid , uint amount)
         {
             var newHealth = _health - amount;
             if (newHealth >= 0)
@@ -100,7 +116,7 @@ namespace Smart_Snake_Remastered.Models
             }
             else
             {
-                Die();
+                Die(lifeforms, currentGrid);
                 return false;
             }
         }
@@ -116,12 +132,9 @@ namespace Smart_Snake_Remastered.Models
             return col;
         }
 
-        public void Die()
-        {
-            Dead = true;
-        }
+        public abstract void Die(List<Animal> lifeforms, Grid currentGrid);
 
-        public abstract void Act(Grid currentGrid);
+        public abstract void Act(List<Animal> lifeforms, Grid currentGrid);
         public Point NextLocation(Grid currentGrid)
         {
             Point newLocation = new Point(Location.X, Location.Y);

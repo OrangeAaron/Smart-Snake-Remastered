@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Drawing.Imaging;
+using System.Threading;
 
 namespace Smart_Snake_Remastered.Models
 {
@@ -15,16 +16,23 @@ namespace Smart_Snake_Remastered.Models
         public UInt64 Lifetime;
         public Bitmap World;
         public Random GridSeed;
+        public Mutex WorldLock = new Mutex();
+
 
         public Color this[int x, int y]
         {
             get
             {
-                return World.GetPixel(x, y);
+                WorldLock.WaitOne();
+                var pixel = World.GetPixel(x, y);
+                WorldLock.ReleaseMutex();
+                return pixel;
             }
             set
             {
-               World.SetPixel(x, y, value);
+                WorldLock.WaitOne();
+                World.SetPixel(x, y, value);
+                WorldLock.ReleaseMutex();
             }
         }
 
@@ -41,8 +49,24 @@ namespace Smart_Snake_Remastered.Models
             //        BoxMatrix[x, y] = new GridBox();
             //    }
             //}
+            WorldLock.WaitOne();
             World = new Bitmap(Properties.Resources.arena, sizeXbyY);
+            WorldLock.ReleaseMutex();
             GridSeed = new Random(DateTime.Now.Millisecond + DateTime.Now.Day + DateTime.Now.Year);
+        }
+
+
+        public void InitializeTo(Color color)
+        {
+            WorldLock.WaitOne();
+            for (int x = 0; x < World.Width; x++)
+            {
+                for (int y = 0; y < World.Height; y++)
+                {
+                    World.SetPixel(x, y, color);
+                }
+            }
+            WorldLock.ReleaseMutex();
         }
 
         public bool IsAvailable(Point location)
@@ -51,11 +75,26 @@ namespace Smart_Snake_Remastered.Models
             return false;
         }
         
+        public int GetBorderIndex(int index)
+        {
+            var result = 0;
+            WorldLock.WaitOne();
+            if (index == 0)
+            {
+                result = World.Width - 1;
+            }
+            else
+            {
+                result = World.Height - 1;
+            }
+            WorldLock.ReleaseMutex();
+            return result;
+        }
 
         public Boolean WithinBounds(Point location)
         {
-            var maxXCoordinate = this.World.GetBorderIndex(0);
-            var maxYCoordinate = this.World.GetBorderIndex(1);
+            var maxXCoordinate = this.GetBorderIndex(0);
+            var maxYCoordinate = this.GetBorderIndex(1);
             var minXCoordinate = 0;
             var minYCoordinate = 0;
 
@@ -70,42 +109,14 @@ namespace Smart_Snake_Remastered.Models
         {
             Point newLocation = new Point(initialLocation.X, initialLocation.Y);
 
-            if (initialLocation.X > this.World.GetBorderIndex(0))  newLocation.X = 0;
-            else if (initialLocation.X < 0)  newLocation.X = this.World.GetBorderIndex(0);
+            if (initialLocation.X > this.GetBorderIndex(0))  newLocation.X = 0;
+            else if (initialLocation.X < 0)  newLocation.X = this.GetBorderIndex(0);
 
-            if (initialLocation.Y > this.World.GetBorderIndex(1)) newLocation.Y = 0;
-            else if (initialLocation.Y < 0) newLocation.Y = this.World.GetBorderIndex(1);
+            if (initialLocation.Y > this.GetBorderIndex(1)) newLocation.Y = 0;
+            else if (initialLocation.Y < 0) newLocation.Y = this.GetBorderIndex(1);
 
 
             return newLocation;
         }
-
-        //public class GridBox : INotifyPropertyChanged
-        //{
-        //    public event PropertyChangedEventHandler PropertyChanged;
-        //    private object _containedObject;
-        //    public object ContainedObject
-        //    {
-        //        get { return _containedObject; }
-        //        set
-        //        {
-        //            _containedObject = value;
-        //            OnPropertyChanged("ContainedObject");
-        //            if (value == null) HasObject = false;
-        //            else HasObject = true;
-        //        }
-        //    }
-            
-        //    protected void OnPropertyChanged(string name)
-        //    {
-        //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        //    }
-
-        //    public bool HasObject = false;
-        //    public GridBox()
-        //    {
-        //        _containedObject = null;
-        //    }
-        //}
     }
 }

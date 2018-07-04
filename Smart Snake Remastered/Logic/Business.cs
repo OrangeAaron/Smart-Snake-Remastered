@@ -27,7 +27,7 @@ namespace Smart_Snake_Remastered.Logic
             {
                 foreach (Animal animal in lifeforms)
                 {
-                    animal.Act(environment);
+                    animal.Act(lifeforms, environment);
                 }
             }
             catch (Exception ex)
