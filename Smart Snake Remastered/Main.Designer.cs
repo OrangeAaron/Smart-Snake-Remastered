@@ -35,7 +35,6 @@ namespace Smart_Snake_Remastered
             this.Start = new System.Windows.Forms.Button();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -98,13 +97,6 @@ namespace Smart_Snake_Remastered
             this.label1.Size = new System.Drawing.Size(66, 17);
             this.label1.TabIndex = 2;
             this.label1.Text = "Grid Size";
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(528, 517);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(218, 23);
-            this.progressBar1.TabIndex = 3;
             // 
             // numericUpDown2
             // 
@@ -275,7 +267,6 @@ namespace Smart_Snake_Remastered
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.numericUpDown2);
-            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.Start);
@@ -299,7 +290,6 @@ namespace Smart_Snake_Remastered
         private System.Windows.Forms.Button Start;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.Label label2;
         private PictureBox pictureBox1;

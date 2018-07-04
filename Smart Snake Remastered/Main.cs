@@ -29,7 +29,9 @@ namespace Smart_Snake_Remastered
         
         public Main()
         {
+            Cursor.Current = Cursors.WaitCursor;
             InitializeComponent();
+            Cursor.Current = Cursors.Default;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -39,6 +41,7 @@ namespace Smart_Snake_Remastered
 
         private void Start_Click(object sender, EventArgs e)
         {
+            Cursor.Current = Cursors.WaitCursor;
             Start.Enabled = false;
             if (timer1 != null) timer1.Enabled = false;
             Environment = null;
@@ -66,7 +69,7 @@ namespace Smart_Snake_Remastered
             this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Tick);
             timer1.Enabled = true;
             Start.Enabled = true;
-            Application.UseWaitCursor = false;
+            Cursor.Current = Cursors.Default;
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
