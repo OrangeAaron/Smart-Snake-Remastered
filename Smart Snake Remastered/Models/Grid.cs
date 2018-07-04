@@ -120,14 +120,16 @@ namespace Smart_Snake_Remastered.Models
         public Point SendToOtherSideOfScreen(Point initialLocation)
         {
             Point newLocation = new Point(initialLocation.X, initialLocation.Y);
-
-            if (initialLocation.X > this.GetBorderIndex(0))  newLocation.X = 0;
-            else if (initialLocation.X < 0)  newLocation.X = this.GetBorderIndex(0);
-
-            if (initialLocation.Y > this.GetBorderIndex(1)) newLocation.Y = 0;
-            else if (initialLocation.Y < 0) newLocation.Y = this.GetBorderIndex(1);
-
-
+            if (initialLocation.X > this.GetBorderIndex(0))
+                newLocation.X = (initialLocation.X - this.GetBorderIndex(0)) - 1;
+            else if (initialLocation.X < 0)
+            newLocation.X = (this.GetBorderIndex(0) - (initialLocation.X * -1));
+            if (initialLocation.Y > this.GetBorderIndex(1))
+            newLocation.Y = (initialLocation.Y - this.GetBorderIndex(1)) - 1;
+            else if (initialLocation.Y < 0)
+            newLocation.Y = (this.GetBorderIndex(1) - (initialLocation.Y * -1)) + 1;
+            if (newLocation.X < 0 || newLocation.X > this.GetBorderIndex(0) || newLocation.Y < 0 || newLocation.Y > this.GetBorderIndex(1))
+                newLocation = SendToOtherSideOfScreen(newLocation);
             return newLocation;
         }
     }

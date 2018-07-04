@@ -12,13 +12,14 @@ namespace Smart_Snake_Remastered.Models
     public class Snake : Animal
     {
         private const int STARTLENGTH = 4;
-        public override Color Visual {
+        public override Color Visual
+        {
             get
             {
                 return Color.DarkRed;
             }
         }
-            public SnakeBody NextBody;
+        public SnakeBody NextBody;
 
         public Snake(Snake firstParent, Snake secondParent, Grid currentGrid)
         {
@@ -60,7 +61,7 @@ namespace Smart_Snake_Remastered.Models
             Location = GetEggSpot(currentGrid, firstParent.Location);
             AddLength(STARTLENGTH - 1);
         }
-        
+
 
         public Snake(uint senses, uint stamina, uint boldness, Grid currentGrid)
         {
@@ -87,17 +88,17 @@ namespace Smart_Snake_Remastered.Models
         {
             var newLifeList = new List<Birth>();
             var oldList = GetAllLocations();
-            uint motivation = (uint)(this.ExtensionGenes.Next((int)(this.Boldness/10)));
+            uint motivation = (uint)(this.ExtensionGenes.Next((int)(this.Boldness / 2)));
 
+            uint scaredness = LookAhead(currentGrid);
 
-            
-            if (motivation > 50 && CheckEnergy() > 10)
+            if ((scaredness > motivation) && CheckEnergy() > 10)
             {
                 ChangeDirection();
                 newLifeList = Move(lifeforms, currentGrid);
-                    ExpendEnergy(10);
-                    var newList = GetAllLocations();
-                    currentGrid.UpdateLocationInGrid(oldList, newList, this);
+                ExpendEnergy(10);
+                var newList = GetAllLocations();
+                currentGrid.UpdateLocationInGrid(oldList, newList, this);
             }
             else
             {
@@ -107,6 +108,91 @@ namespace Smart_Snake_Remastered.Models
             }
             GetOlder();
             return newLifeList;
+        }
+
+        public List<Point> GetSightPoints(Grid currentGrid)
+        {
+            var farToPeripheralRatio = 4;
+            var result = new List<Point>();
+
+            switch (this.Direction)
+            {
+                case Direction.North:
+                    int startYCoor = 0;
+                    int startXCoor = 0;
+                    int endYCoor = 0;
+                    int endXCoor = 0;
+                    startYCoor = (int)(this.Location.Y - this.Vision - 1);
+                    startXCoor = (int)(this.Location.X + (this.Vision / (farToPeripheralRatio * 2)));
+                    endYCoor = (int)(startYCoor + this.Vision);
+                    endXCoor = (int)(startXCoor - (this.Vision / (farToPeripheralRatio)));
+                    for (int y = startYCoor; y < endYCoor; y++)
+                    {
+                        for (int x = startXCoor; x > endXCoor; x--)
+                        {
+                            result.Add(currentGrid.SendToOtherSideOfScreen(new Point(x, y)));
+                        }
+                    }
+                    break;
+                case Direction.East:
+                    startYCoor = (int)((this.Vision / (farToPeripheralRatio * 2)) + this.Location.Y);
+                    startXCoor = (int)(this.Vision + this.Location.X + 1);
+                    endYCoor = (int)(startYCoor - (this.Vision/(farToPeripheralRatio)));
+                    endXCoor = (int)(startXCoor - this.Vision);
+                    for (int y = startYCoor; y > endYCoor; y--)
+                    {
+                        for (int x = startXCoor; x > endXCoor; x--)
+                        {
+                                result.Add(currentGrid.SendToOtherSideOfScreen(new Point(x, y)));
+                        }
+                    }
+                    break;
+                case Direction.South:
+                    startYCoor = (int)(this.Vision + this.Location.Y + 1);
+                    startXCoor = (int)(this.Location.X - (this.Vision / (farToPeripheralRatio * 2)));
+                    endYCoor = (int)(startYCoor - this.Vision);
+                    endXCoor = (int)(startXCoor + (this.Vision / (farToPeripheralRatio)));
+                    for (int y = startYCoor; y > endYCoor; y--)
+                    {
+                        for (int x = startXCoor; x < endXCoor; x++)
+                        {
+                            result.Add(currentGrid.SendToOtherSideOfScreen(new Point(x, y)));
+                        }
+                    }
+                    break;
+                case Direction.West:
+                    startYCoor = (int)(this.Location.Y - (this.Vision / (farToPeripheralRatio * 2)));
+                    startXCoor = (int)(this.Location.X - this.Vision - 1);
+                    endYCoor = (int)(startYCoor + (this.Vision / (farToPeripheralRatio)));
+                    endXCoor = (int)(startXCoor + this.Vision);
+                    for (int y = startYCoor; y < endYCoor; y++)
+                    {
+                        for (int x = startXCoor; x < endXCoor; x++)
+                        {
+                            result.Add(currentGrid.SendToOtherSideOfScreen(new Point(x, y)));
+                        }
+                    }
+                    break;
+            }
+            return result;
+        }
+
+        public uint LookAhead(Grid currentGrid)
+        {
+            var result = 0;
+            try
+            {
+                var points = GetSightPoints(currentGrid);
+                foreach (Point pToCheck in points)
+                {
+                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(this)) result += 2;
+                 //   if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Bunny())) result += 2;
+                }
+            }catch(Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return (uint)result;
         }
 
         public override List<Point> GetAllLocations()
@@ -185,7 +271,7 @@ namespace Smart_Snake_Remastered.Models
                             break;
                         }
                     }
-                    if(!isSnakeHead) this.Dead = true;
+                    if (!isSnakeHead) this.Dead = true;
                 }
             }
             else
