@@ -40,11 +40,6 @@ namespace Smart_Snake_Remastered
         {
             Start.Enabled = false;
             if (timer1 != null) timer1.Enabled = false;
-            worker = new BackgroundWorker();
-            worker.DoWork += RunAct;
-            timer1 = new System.Timers.Timer();
-            this.timer1.Interval = Convert.ToDouble(50);
-            this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Tick);
             Environment = null;
             var size = (int)numericUpDown1.Value;
             var newEnvironment = new Grid(new Size(size, size));
@@ -62,6 +57,11 @@ namespace Smart_Snake_Remastered
             Environment.WorldLock.ReleaseMutex();
 
             LifeForms = Business.CreateLife(Environment, (int)numericUpDown2.Value);
+            worker = new BackgroundWorker();
+            worker.DoWork += RunAct;
+            timer1 = new System.Timers.Timer();
+            this.timer1.Interval = Convert.ToDouble(50);
+            this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Tick);
             timer1.Enabled = true;
             Start.Enabled = true;
             Application.UseWaitCursor = false;
@@ -99,11 +99,24 @@ namespace Smart_Snake_Remastered
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (!worker.IsBusy)
-                worker.RunWorkerAsync();
-            Invoke(new Action(() =>
             {
-                pictureBox1.Refresh();
-            }));
+                worker.RunWorkerAsync();
+                try
+                {
+                    Invoke(new Action(() =>
+                    {
+                        pictureBox1.Refresh();
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    //do something here
+                }
+            }
+        }
+        private void Main_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.Dispose();
         }
     }
 }

@@ -28,6 +28,8 @@ namespace Smart_Snake_Remastered.Logic
                 foreach (Animal animal in lifeforms)
                 {
                     animal.Act(lifeforms, environment);
+                    if (animal.Dead == true)
+                        animal.Die(lifeforms, environment);
                 }
             }
             catch (Exception ex)

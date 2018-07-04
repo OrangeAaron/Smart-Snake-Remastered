@@ -137,6 +137,7 @@ namespace Smart_Snake_Remastered
             this.Controls.Add(this.Start);
             this.Name = "Main";
             this.Text = "Smart Snake Remastered";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Main_FormClosed);
             this.Load += new System.EventHandler(this.Main_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();

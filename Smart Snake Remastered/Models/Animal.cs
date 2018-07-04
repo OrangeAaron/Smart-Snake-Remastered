@@ -54,9 +54,9 @@ namespace Smart_Snake_Remastered.Models
         }
 
 
-        public void DeleteBodyFromGrid(List<Point> deleteList, Grid currentGrid)
+        public void DeleteFromGrid(List<Point> deleteList, Grid currentGrid)
         {
-            foreach (Point p in deleteList)
+            foreach (Point p in deleteList.Distinct())
             {
                 currentGrid[p.X, p.Y] = Main.empty;
             }
