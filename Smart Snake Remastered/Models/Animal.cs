@@ -43,11 +43,11 @@ namespace Smart_Snake_Remastered.Models
 
         public void UpdateLocationInGrid(List<Point> deleteList, List<Point> addList, Grid currentGrid)
         {
-            foreach (Point p in deleteList)
+            foreach (Point p in deleteList.Except(addList))
             {
                 currentGrid[p.X, p.Y] = Main.empty;
             }
-            foreach (Point p in addList)
+            foreach (Point p in addList.Except(deleteList))
             {
                 currentGrid[p.X, p.Y] = this;
             }
