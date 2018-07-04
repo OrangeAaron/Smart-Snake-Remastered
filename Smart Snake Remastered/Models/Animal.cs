@@ -16,7 +16,8 @@ namespace Smart_Snake_Remastered.Models
         //Genetics
         public uint Vision;
         public uint Stamina;
-        public uint Intelligence;
+        public uint Smell;
+        public uint Hearing;
         public uint Boldness;
         public Random ExtensionGenes;
 
@@ -24,14 +25,14 @@ namespace Smart_Snake_Remastered.Models
         public bool Dead = false;
         public Point Location;
         public Direction Direction;
+        public uint Age;
         protected uint _energy;
-        protected uint _age;
         protected uint _health;
 
 
         public virtual void GetOlder()
         {
-            _age++;
+            Age++;
             _energy++;
         }
 
@@ -98,6 +99,15 @@ namespace Smart_Snake_Remastered.Models
             {
                 return false;
             }
+        }
+
+        public int RandomMutation()
+        {
+            var amount = ExtensionGenes.Next(ExtensionGenes.Next(10));
+            var subtractOrAdd = ExtensionGenes.Next(2);
+            if (subtractOrAdd == 0)
+                amount = amount * -1;
+            return amount;
         }
 
         public abstract Animal GiveBirth(Animal father, Grid currentGrid);

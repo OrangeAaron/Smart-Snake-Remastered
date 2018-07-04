@@ -25,17 +25,31 @@ namespace Smart_Snake_Remastered.Models
             decimal firstParentRatio = (decimal)currentGrid.GridSeed.Next(101) / (decimal)100;
             decimal secondParentRatio = 1 - firstParentRatio;
 
-            this.Vision = (uint)((firstParent.Vision * firstParentRatio)
-                + (secondParent.Vision * secondParentRatio));
+            var vis = ((firstParent.Vision * firstParentRatio)
+                + (secondParent.Vision * secondParentRatio) + this.RandomMutation());
+            if (vis < 0) this.Vision = 0;
+            else this.Vision = (uint)vis;
 
-            this.Stamina = (uint)((firstParent.Stamina * firstParentRatio)
-                + (secondParent.Stamina * secondParentRatio));
+            var sta = (firstParent.Stamina * firstParentRatio)
+                + (secondParent.Stamina * secondParentRatio) + this.RandomMutation();
+            if (sta < 0) this.Stamina = 0;
+            else this.Stamina = (uint)sta;
 
-            this.Intelligence = (uint)((firstParent.Intelligence * firstParentRatio)
-                + (secondParent.Intelligence * secondParentRatio));
+            var hear = ((firstParent.Hearing * firstParentRatio)
+                + (secondParent.Hearing * secondParentRatio) + this.RandomMutation());
+            if (hear < 0) this.Hearing = 0;
+            else this.Hearing = (uint)hear;
 
-            this.Boldness = (uint)((firstParent.Boldness * firstParentRatio)
-                + (secondParent.Boldness * secondParentRatio));
+            var smel = ((firstParent.Smell * firstParentRatio)
+                  + (secondParent.Smell * secondParentRatio) + this.RandomMutation());
+            if (smel < 0) this.Smell = 0;
+            else this.Smell = (uint)smel;
+
+            var bol = ((firstParent.Boldness * firstParentRatio)
+                + (secondParent.Boldness * secondParentRatio) + this.RandomMutation());
+            if (bol < 0) this.Boldness = 0;
+            else this.Boldness = (uint)bol;
+
 
             ExtensionGenes = firstParent.ExtensionGenes;
             InitializeAnimal(
@@ -48,11 +62,12 @@ namespace Smart_Snake_Remastered.Models
         }
         
 
-        public Snake(uint vision, uint stamina, uint intelligence, uint boldness, Grid currentGrid)
+        public Snake(uint senses, uint stamina, uint boldness, Grid currentGrid)
         {
-            this.Vision = vision;
+            this.Vision = senses;
+            this.Hearing = senses;
+            this.Smell = senses;
             this.Stamina = stamina;
-            this.Intelligence = intelligence;
             this.Boldness = boldness;
             ExtensionGenes = new Random(currentGrid.GridSeed.Next(1000000));
             InitializeAnimal(
@@ -72,7 +87,10 @@ namespace Smart_Snake_Remastered.Models
         {
             var newLifeList = new List<Birth>();
             var oldList = GetAllLocations();
-            uint motivation = (uint)(this.ExtensionGenes.Next(101));
+            uint motivation = (uint)(this.ExtensionGenes.Next((int)(this.Boldness/10)));
+
+
+            
             if (motivation > 50 && CheckEnergy() > 10)
             {
                 ChangeDirection();
@@ -110,9 +128,9 @@ namespace Smart_Snake_Remastered.Models
 
         public override void GetOlder()
         {
-            _age++;
+            Age++;
             _energy++;
-            if (_age % 15 == 0)
+            if (Age % 15 == 0)
             {
                 AddLength();
             }

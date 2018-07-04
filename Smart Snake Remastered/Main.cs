@@ -19,8 +19,9 @@ namespace Smart_Snake_Remastered
 
         public Grid Environment;
         public List<Animal> LifeForms;
-        public const uint MAXGRIDSIZE = 10000;
+        public const uint MAXGRIDSIZE = 2000;
         public static Color empty = Color.White;
+        public Animal SmartestAnimal;
         
         //multithreading variables
         private System.Timers.Timer timer1 = null;
@@ -55,6 +56,7 @@ namespace Smart_Snake_Remastered
             }
             this.Refresh();
             Environment.WorldLock.ReleaseMutex();
+            
 
             LifeForms = Business.CreateLife(Environment, (int)numericUpDown2.Value);
             worker = new BackgroundWorker();
@@ -70,7 +72,7 @@ namespace Smart_Snake_Remastered
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
             var value = numericUpDown1.Value;
-            if (value > 0 && value < MAXGRIDSIZE) Start.Enabled = true;
+            if (value > 0 && value <= MAXGRIDSIZE) Start.Enabled = true;
             else Start.Enabled = false;
         }
         
@@ -93,7 +95,31 @@ namespace Smart_Snake_Remastered
 
         private void RunAct(object sender, EventArgs e)
         {
-            Business.Live(LifeForms, Environment);
+            var smartestAnimal = Business.Live(LifeForms, Environment);
+            if (smartestAnimal != null)
+            {
+                SmartestAnimal = smartestAnimal;
+                }
+        }
+
+        private void ShowSmartestAnimal()
+        {
+            groupBox1.Visible = true;
+            BoldestSnake.Visible = true;
+            BoldestSnake.Text = SmartestAnimal.Boldness.ToString();
+            HearingSnake.Visible = true;
+            HearingSnake.Text = SmartestAnimal.Hearing.ToString();
+            SmellSnake.Visible = true;
+            SmellSnake.Text = SmartestAnimal.Smell.ToString();
+            StaminaSnake.Visible = true;
+            StaminaSnake.Text = SmartestAnimal.Stamina.ToString();
+            VisionSnake.Visible = true;
+            VisionSnake.Text = SmartestAnimal.Vision.ToString();
+            label3.Visible = true;
+            label5.Visible = true;
+            label6.Visible = true;
+            Boldness.Visible = true;
+            Stamina.Visible = true;
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -105,6 +131,10 @@ namespace Smart_Snake_Remastered
                 {
                     Invoke(new Action(() =>
                     {
+                     if (SmartestAnimal != null)
+                     {
+                            ShowSmartestAnimal();
+                    }
                         pictureBox1.Refresh();
                     }));
                 }
@@ -117,6 +147,66 @@ namespace Smart_Snake_Remastered
         private void Main_FormClosed(object sender, FormClosedEventArgs e)
         {
             this.Dispose();
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SmellSnake_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void HearingSnake_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label3_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void VisionSnake_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Stamina_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void StaminaSnake_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void BoldestSnake_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

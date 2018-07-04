@@ -16,14 +16,15 @@ namespace Smart_Snake_Remastered.Logic
             List<Animal> life = new List<Animal>();
             for (int i = 0; i < numberOfSnakes; i++)
             {
-                var snake = new Snake(20, 20, 20, 20, currentGrid);
+                var snake = new Snake(20, 20, 20, currentGrid);
                 currentGrid[snake.Location.X, snake.Location.Y] = snake.Visual;
                 life.Add(snake);
             }
             return life;
         }
-        public static void Live(List<Animal> lifeforms, Grid environment)
+        public static Animal Live(List<Animal> lifeforms, Grid environment)
         {
+            Animal smartestAnimal = null;
             try
             {
                 if (lifeforms.Count != 0)
@@ -33,6 +34,8 @@ namespace Smart_Snake_Remastered.Logic
                     foreach (Animal animal in lifeforms)
                     {
                         newLives = animal.Act(lifeforms, environment);
+                        if (smartestAnimal == null || animal.Age > smartestAnimal.Age)
+                            smartestAnimal = animal;
                         if (animal.Dead == true)
                             newDeaths.Add(animal);
                     }
@@ -51,6 +54,7 @@ namespace Smart_Snake_Remastered.Logic
             {
                 string error = ex.Message;
             }
+            return smartestAnimal;
         }
     }
 }
