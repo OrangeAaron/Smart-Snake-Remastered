@@ -57,6 +57,7 @@
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Animal.cs" />
+    <Compile Include="Models\Animals\Bunny.cs" />
     <Compile Include="Models\Direction.cs" />
     <Compile Include="Models\Grid.cs" />
     <Compile Include="Models\Animals\Snake.cs" />

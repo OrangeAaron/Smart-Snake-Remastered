@@ -49,10 +49,13 @@ namespace Smart_Snake_Remastered
             this.label5 = new System.Windows.Forms.Label();
             this.Stamina = new System.Windows.Forms.Label();
             this.Boldness = new System.Windows.Forms.Label();
+            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             this.SuspendLayout();
             // 
             // Start
@@ -68,7 +71,7 @@ namespace Smart_Snake_Remastered
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(561, 361);
+            this.numericUpDown1.Location = new System.Drawing.Point(564, 316);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -80,7 +83,7 @@ namespace Smart_Snake_Remastered
             0,
             0});
             this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(143, 22);
+            this.numericUpDown1.Size = new System.Drawing.Size(140, 22);
             this.numericUpDown1.TabIndex = 1;
             this.numericUpDown1.Value = new decimal(new int[] {
             4,
@@ -92,7 +95,7 @@ namespace Smart_Snake_Remastered
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(558, 341);
+            this.label1.Location = new System.Drawing.Point(561, 296);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(66, 17);
             this.label1.TabIndex = 2;
@@ -258,12 +261,36 @@ namespace Smart_Snake_Remastered
             this.Boldness.Visible = false;
             this.Boldness.Click += new System.EventHandler(this.label3_Click);
             // 
+            // numericUpDown3
+            // 
+            this.numericUpDown3.Location = new System.Drawing.Point(564, 361);
+            this.numericUpDown3.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numericUpDown3.Name = "numericUpDown3";
+            this.numericUpDown3.Size = new System.Drawing.Size(140, 22);
+            this.numericUpDown3.TabIndex = 12;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(561, 341);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(129, 17);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "Number of Bunnies";
+            this.label4.Click += new System.EventHandler(this.label4_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDark;
             this.ClientSize = new System.Drawing.Size(758, 552);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.numericUpDown3);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.numericUpDown2);
@@ -280,6 +307,7 @@ namespace Smart_Snake_Remastered
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -304,6 +332,8 @@ namespace Smart_Snake_Remastered
         private Label Stamina;
         private TextBox SmellSnake;
         private Label label3;
+        private NumericUpDown numericUpDown3;
+        private Label label4;
     }
 }
 

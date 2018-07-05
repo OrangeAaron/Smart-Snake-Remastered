@@ -1,32 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Drawing;
 using System.Threading.Tasks;
-using Smart_Snake_Remastered;
-using Smart_Snake_Remastered.Logic;
-using Smart_Snake_Remastered.Models.Animals;
-using static Smart_Snake_Remastered.Models.Animals.Bunny;
 
-namespace Smart_Snake_Remastered.Models
+namespace Smart_Snake_Remastered.Models.Animals
 {
-    public class Snake : Animal
+    class Bunny : Animal
     {
         private const int STARTLENGTH = 4;
-        public int BirthCooldown = 20;
+        private int BirthCooldown = 20;
         public override Color Visual
         {
             get
             {
-                return Color.DarkRed;
+                return Color.Blue;
             }
         }
-        public SnakeBody NextBody;
+        public BunnyBody Butt;
 
-        public Snake(Snake firstParent, Snake secondParent, Grid currentGrid)
+        public Bunny(Bunny firstParent, Bunny secondParent, Grid currentGrid)
         {
             ExtensionGenes = firstParent.ExtensionGenes;
+
             decimal firstParentRatio = (decimal)currentGrid.GridSeed.Next(101) / (decimal)100;
             decimal secondParentRatio = 1 - firstParentRatio;
 
@@ -55,22 +52,18 @@ namespace Smart_Snake_Remastered.Models
             if (bol < 0) this.Boldness = 0;
             else this.Boldness = (uint)bol;
 
+
             InitializeAnimal(
                 this.Stamina,
                 ExtensionGenes.Next(4).ToDirection(),
                 GetFullHealth(this.Stamina));
 
             Location = GetEggSpot(currentGrid, firstParent.Location);
-            AddLength(STARTLENGTH - 1);
+            this.Butt = new BunnyBody(this, this.Location);
         }
 
 
-        public Snake()
-        {
-        }
-
-
-        public Snake(uint senses, uint stamina, uint boldness, Grid currentGrid)
+        public Bunny(uint senses, uint stamina, uint boldness, Grid currentGrid)
         {
             this.Vision = senses;
             this.Hearing = senses;
@@ -83,12 +76,17 @@ namespace Smart_Snake_Remastered.Models
                 ExtensionGenes.Next(4).ToDirection(),
                 GetFullHealth(this.Stamina));
             Location = GetEggSpot(currentGrid);
-            AddLength(STARTLENGTH - 1);
+            this.Butt = new BunnyBody(this, this.Location);
+        }
+
+
+        public Bunny()
+        {
         }
 
         public override Animal GiveBirth(Animal father, Grid currentGrid)
         {
-            return new Snake(this, (Snake)father, currentGrid);
+            return new Bunny(this, (Bunny)father, currentGrid);
         }
 
         public override List<Birth> Act(List<Animal> lifeforms, Grid currentGrid)
@@ -96,11 +94,10 @@ namespace Smart_Snake_Remastered.Models
             var newLifeList = new List<Birth>();
             var oldList = GetAllLocations();
             uint motivation = (uint)(this.ExtensionGenes.Next((int)(this.Boldness / 2)));
-            var sightResults = LookAhead(currentGrid);
-            uint scaredness = (uint)sightResults[0];
-            motivation += (uint)sightResults[1];
 
-            if ((scaredness > motivation) && CheckEnergy() > 10)
+            uint scaredness = LookAhead(currentGrid);
+
+            if ((scaredness > motivation || Age % 10 == 0) && CheckEnergy() > 10)
             {
                 ChangeDirection();
                 newLifeList = Move(lifeforms, currentGrid);
@@ -108,10 +105,11 @@ namespace Smart_Snake_Remastered.Models
                 var newList = GetAllLocations();
                 currentGrid.UpdateLocationInGrid(oldList, newList, this);
             }
-            else
+            else if((scaredness > motivation) && CheckEnergy() > 4)
             {
                 newLifeList = Move(lifeforms, currentGrid);
                 var newList = GetAllLocations();
+                ExpendEnergy(4);
                 currentGrid.UpdateLocationInGrid(oldList, newList, this);
             }
             GetOlder();
@@ -120,7 +118,7 @@ namespace Smart_Snake_Remastered.Models
 
         public List<Point> GetSightPoints(Grid currentGrid)
         {
-            var farToPeripheralRatio = 4;
+            var farToPeripheralRatio = 1;
             var result = new List<Point>();
 
             switch (this.Direction)
@@ -145,13 +143,13 @@ namespace Smart_Snake_Remastered.Models
                 case Direction.East:
                     startYCoor = (int)((this.Vision / (farToPeripheralRatio * 2)) + this.Location.Y);
                     startXCoor = (int)(this.Vision + this.Location.X + 1);
-                    endYCoor = (int)(startYCoor - (this.Vision/(farToPeripheralRatio)));
+                    endYCoor = (int)(startYCoor - (this.Vision / (farToPeripheralRatio)));
                     endXCoor = (int)(startXCoor - this.Vision);
                     for (int y = startYCoor; y > endYCoor; y--)
                     {
                         for (int x = startXCoor; x > endXCoor; x--)
                         {
-                                result.Add(currentGrid.SendToOtherSideOfScreen(new Point(x, y)));
+                            result.Add(currentGrid.SendToOtherSideOfScreen(new Point(x, y)));
                         }
                     }
                     break;
@@ -185,16 +183,22 @@ namespace Smart_Snake_Remastered.Models
             return result;
         }
 
-        public int[] LookAhead(Grid currentGrid)
+        public uint LookAhead(Grid currentGrid)
         {
-            var result = new int[2]{0,0};
+            var result = 0;
+            try
+            {
                 var points = GetSightPoints(currentGrid);
                 foreach (Point pToCheck in points)
                 {
-                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(this)) result[0] += 2;
-                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Bunny())) result[1] += 2;
+                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Snake())) result += 2;
                 }
-            return result;
+            }
+            catch (Exception ex)
+            {
+                var error = ex.Message;
+            }
+            return (uint)result;
         }
 
         public override List<Point> GetAllLocations()
@@ -204,12 +208,8 @@ namespace Smart_Snake_Remastered.Models
             if (this != null)
             {
                 result.Add(this.Location);
-                SnakeBody current = this.NextBody;
-                while (current.NextBody != null)
-                {
+                BunnyBody current = this.Butt;
                     result.Add(current.Location);
-                    current = current.NextBody;
-                }
             }
             return result;
         }
@@ -217,41 +217,8 @@ namespace Smart_Snake_Remastered.Models
         public override void GetOlder()
         {
             Age++;
-            _energy++;
+            _energy += 2;
             if (BirthCooldown > 0) BirthCooldown--;
-            if (Age % 15 == 0)
-            {
-                AddLength();
-            }
-        }
-
-        public void AddLength()
-        {
-
-            Snake head = this;
-            if (head.NextBody != null)
-            {
-                SnakeBody current = head.NextBody;
-                while (current.NextBody != null)
-                {
-                    current = current.NextBody;
-                }
-                SnakeBody toAdd = new SnakeBody(this, current.Location);
-                current.NextBody = toAdd;
-            }
-            else
-            {
-                SnakeBody toAdd = new SnakeBody(this, Location);
-                head.NextBody = toAdd;
-            }
-        }
-
-        public void AddLength(int amount)
-        {
-            for (int i = 0; i < amount; i++)
-            {
-                AddLength();
-            }
         }
 
         private List<Birth> Move(List<Animal> lifeforms, Grid currentGrid)
@@ -263,43 +230,32 @@ namespace Smart_Snake_Remastered.Models
             {
                 if (nextLocationObject.Equivalent(this))
                 {
-                    var isSnakeHead = false;
+                    foreach (Animal b in lifeforms)
+                    {
+                        if (b is Bunny)
+                        {
+                            if (nextLocation == b.Location)
+                            {
+
+                                if (BirthCooldown <= 0)
+                                {
+                                    newLifeList.Add(new Birth(this, (Bunny)b));
+                                    BirthCooldown += 5;
+                                }
+                                ChangeDirection();
+                                break;
+                            }
+                        }
+                    }
                     foreach (Animal s in lifeforms)
                     {
                         if (s is Snake)
                         {
                             if (nextLocation == s.Location)
                             {
-                                if (BirthCooldown <= 0)
-                                {
-                                    newLifeList.Add(new Birth(this, s));
-                                    ChangeDirection();
-                                    BirthCooldown += 40;
-                                }
-                                isSnakeHead = true;
-                                break;
+                                this.Dead = true;
                             }
                         }
-                    }
-                    if (!isSnakeHead) this.Dead = true;
-                }
-                else if (nextLocationObject.Equivalent(new Bunny()))
-                {
-                    foreach (Animal b in lifeforms)
-                    {
-                        if (b is Bunny)
-                        {
-                            var bunny = (Bunny)b;
-                            if (b.Location == nextLocation || bunny.Butt.Location == nextLocation)
-                            {
-                                b.Dead = true;
-                            }
-                        }
-                    }
-                    if (BirthCooldown <= 0)
-                    {
-                        newLifeList.Add(new Birth(this, this));
-                        BirthCooldown += 40;
                     }
                 }
             }
@@ -313,18 +269,11 @@ namespace Smart_Snake_Remastered.Models
 
         private void MoveBodyAlongOverHead()
         {
-            if (this.NextBody != null)
+            if (this.Butt != null)
             {
-                SnakeBody current = this.NextBody;
+                BunnyBody current = this.Butt;
                 var tempLocation = current.Location;
                 current.Location = this.Location;
-                while (current.NextBody != null)
-                {
-                    current = current.NextBody;
-                    var tempLocation2 = current.Location;
-                    current.Location = tempLocation;
-                    tempLocation = tempLocation2;
-                }
             }
         }
 
@@ -339,7 +288,7 @@ namespace Smart_Snake_Remastered.Models
                 eggLocation.Y = currentGrid.GridSeed.Next(currentGrid.GetBorderIndex(1) + 1);
 
             } while (!currentGrid.IsAvailable(eggLocation) && timeout < 500);
-            if (timeout >= 500) throw new Exception("Not enough space for snakes.");
+            if (timeout >= 500) throw new Exception("Not enough space for bunny.");
             return eggLocation;
         }
 
@@ -350,16 +299,16 @@ namespace Smart_Snake_Remastered.Models
             int radius = 10;
             do
             {
-                for (int x = 3; (x < radius) && (!currentGrid.IsAvailable(eggLocation)); x++)
+                for (int x = 5; (x < radius) && (!currentGrid.IsAvailable(eggLocation)); x++)
                 {
                     eggLocation.X = eggLocation.X + radius;
-                    eggLocation = currentGrid.SendToOtherSideOfScreen(eggLocation);
+                    if (!currentGrid.WithinBounds(eggLocation)) throw new Exception("No room for an egg.");
                 }
 
-                for (int y = 3; (y < radius) && (!currentGrid.IsAvailable(eggLocation)); y++)
+                for (int y = 5; (y < radius) && (!currentGrid.IsAvailable(eggLocation)); y++)
                 {
                     eggLocation.Y = eggLocation.Y + radius;
-                    eggLocation = currentGrid.SendToOtherSideOfScreen(eggLocation);
+                    if (!currentGrid.WithinBounds(eggLocation)) throw new Exception("No room for an egg.");
                 }
                 radius = (radius + 1) * -1;
             } while (!currentGrid.IsAvailable(eggLocation));
@@ -371,17 +320,17 @@ namespace Smart_Snake_Remastered.Models
             return 100 + (stamina / 10);
         }
 
-        public class SnakeBody
+        public class BunnyBody
         {
-            public Snake Head;
-            public SnakeBody NextBody;
+            public Bunny Head;
+            public BunnyBody Butt;
             public Point Location;
 
-            public SnakeBody(Snake hd, Point loc)
+            public BunnyBody(Bunny hd, Point loc)
             {
                 Location = loc;
                 Head = hd;
-                NextBody = null;
+                Butt = null;
             }
         }
     }

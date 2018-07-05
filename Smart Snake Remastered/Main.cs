@@ -61,7 +61,7 @@ namespace Smart_Snake_Remastered
             Environment.WorldLock.ReleaseMutex();
             
 
-            LifeForms = Business.CreateLife(Environment, (int)numericUpDown2.Value);
+            LifeForms = Business.CreateLife(Environment, (int)numericUpDown2.Value, (int)numericUpDown3.Value);
             worker = new BackgroundWorker();
             worker.DoWork += RunAct;
             timer1 = new System.Timers.Timer();
@@ -208,6 +208,11 @@ namespace Smart_Snake_Remastered
         }
 
         private void BoldestSnake_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
         {
 
         }

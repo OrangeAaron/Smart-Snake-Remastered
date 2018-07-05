@@ -6,12 +6,13 @@ using System.Drawing;
 using System.Threading.Tasks;
 using Smart_Snake_Remastered.Models;
 using static Smart_Snake_Remastered.Models.Animal;
+using Smart_Snake_Remastered.Models.Animals;
 
 namespace Smart_Snake_Remastered.Logic
 {
     public static class Business
     {
-        public static List<Animal> CreateLife(Grid currentGrid, int numberOfSnakes)
+        public static List<Animal> CreateLife(Grid currentGrid, int numberOfSnakes, int numberOfBunnies)
         {
             List<Animal> life = new List<Animal>();
             for (int i = 0; i < numberOfSnakes; i++)
@@ -19,6 +20,13 @@ namespace Smart_Snake_Remastered.Logic
                 var snake = new Snake(20, 20, 20, currentGrid);
                 currentGrid[snake.Location.X, snake.Location.Y] = snake.Visual;
                 life.Add(snake);
+            }
+
+            for (int i = 0; i < numberOfBunnies; i++)
+            {
+                var bunny = new Bunny(5, 40, 0, currentGrid);
+                currentGrid[bunny.Location.X, bunny.Location.Y] = bunny.Visual;
+                life.Add(bunny);
             }
             return life;
         }
@@ -33,7 +41,7 @@ namespace Smart_Snake_Remastered.Logic
                     var newDeaths = new List<Animal>();
                     foreach (Animal animal in lifeforms)
                     {
-                        newLives = animal.Act(lifeforms, environment);
+                        newLives.AddRange(animal.Act(lifeforms, environment));
                         if (smartestAnimal == null || animal.Age > smartestAnimal.Age)
                             smartestAnimal = animal;
                         if (animal.Dead == true)
