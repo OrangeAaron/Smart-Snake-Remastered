@@ -42,7 +42,7 @@ namespace Smart_Snake_Remastered.Logic
                     foreach (Animal animal in lifeforms)
                     {
                         newLives.AddRange(animal.Act(lifeforms, environment));
-                        if (smartestAnimal == null || animal.Age > smartestAnimal.Age)
+                        if (animal is Snake && (smartestAnimal == null || animal.Age > smartestAnimal.Age))
                             smartestAnimal = animal;
                         if (animal.Dead == true)
                             newDeaths.Add(animal);

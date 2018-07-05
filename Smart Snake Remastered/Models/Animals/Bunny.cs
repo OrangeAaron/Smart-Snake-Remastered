@@ -94,10 +94,12 @@ namespace Smart_Snake_Remastered.Models.Animals
             var newLifeList = new List<Birth>();
             var oldList = GetAllLocations();
             uint motivation = (uint)(this.ExtensionGenes.Next((int)(this.Boldness / 2)));
+            var sightResults = LookAhead(currentGrid);
+            Scaredness += (uint)sightResults[1];
+            var panic = sightResults[0] ;
+            motivation += (uint)sightResults[2];
 
-            uint scaredness = LookAhead(currentGrid);
-
-            if ((scaredness > motivation || Age % 10 == 0) && CheckEnergy() > 10)
+            if ((panic > motivation || Age % 10 == 0) && CheckEnergy() > 10)
             {
                 ChangeDirection();
                 newLifeList = Move(lifeforms, currentGrid);
@@ -105,7 +107,7 @@ namespace Smart_Snake_Remastered.Models.Animals
                 var newList = GetAllLocations();
                 currentGrid.UpdateLocationInGrid(oldList, newList, this);
             }
-            else if((scaredness > motivation) && CheckEnergy() > 4)
+            else if((Scaredness > motivation) && CheckEnergy() > 4)
             {
                 newLifeList = Move(lifeforms, currentGrid);
                 var newList = GetAllLocations();
@@ -183,22 +185,30 @@ namespace Smart_Snake_Remastered.Models.Animals
             return result;
         }
 
-        public uint LookAhead(Grid currentGrid)
+        public int[] LookAhead(Grid currentGrid)
         {
-            var result = 0;
+            var result = new int[3] { 0, 0, 0 };
             try
             {
                 var points = GetSightPoints(currentGrid);
                 foreach (Point pToCheck in points)
                 {
-                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Snake())) result += 2;
+                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Snake()))
+                    {
+                        result[0] = 20;
+                        result[1] += 5;
+                    }
+                    else if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Bunny()))
+                    {
+                        result[2] += 40;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 var error = ex.Message;
             }
-            return (uint)result;
+            return result;
         }
 
         public override List<Point> GetAllLocations()
@@ -218,6 +228,7 @@ namespace Smart_Snake_Remastered.Models.Animals
         {
             Age++;
             _energy += 2;
+            if (Scaredness > 0) Scaredness -= ((Scaredness / 9) + (Scaredness % 10));
             if (BirthCooldown > 0) BirthCooldown--;
         }
 
@@ -234,26 +245,17 @@ namespace Smart_Snake_Remastered.Models.Animals
                     {
                         if (b is Bunny)
                         {
-                            if (nextLocation == b.Location)
+                            var bunny = (Bunny)b;
+                            if (nextLocation == bunny.Location)
                             {
 
                                 if (BirthCooldown <= 0)
                                 {
-                                    newLifeList.Add(new Birth(this, (Bunny)b));
+                                    newLifeList.Add(new Birth(this, bunny));
                                     BirthCooldown += 5;
                                 }
                                 ChangeDirection();
                                 break;
-                            }
-                        }
-                    }
-                    foreach (Animal s in lifeforms)
-                    {
-                        if (s is Snake)
-                        {
-                            if (nextLocation == s.Location)
-                            {
-                                this.Dead = true;
                             }
                         }
                     }

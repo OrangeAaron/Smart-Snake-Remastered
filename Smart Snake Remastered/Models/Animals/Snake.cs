@@ -61,6 +61,7 @@ namespace Smart_Snake_Remastered.Models
                 GetFullHealth(this.Stamina));
 
             Location = GetEggSpot(currentGrid, firstParent.Location);
+            Location = GetEggSpot(currentGrid, firstParent.Location);
             AddLength(STARTLENGTH - 1);
         }
 
@@ -97,14 +98,14 @@ namespace Smart_Snake_Remastered.Models
             var oldList = GetAllLocations();
             uint motivation = (uint)(this.ExtensionGenes.Next((int)(this.Boldness / 2)));
             var sightResults = LookAhead(currentGrid);
-            uint scaredness = (uint)sightResults[0];
+            this.Scaredness += (uint)sightResults[0];
             motivation += (uint)sightResults[1];
 
-            if ((scaredness > motivation) && CheckEnergy() > 10)
+            if ((Scaredness > motivation) && CheckEnergy() > 20)
             {
                 ChangeDirection();
                 newLifeList = Move(lifeforms, currentGrid);
-                ExpendEnergy(10);
+                ExpendEnergy(20);
                 var newList = GetAllLocations();
                 currentGrid.UpdateLocationInGrid(oldList, newList, this);
             }
@@ -191,8 +192,8 @@ namespace Smart_Snake_Remastered.Models
                 var points = GetSightPoints(currentGrid);
                 foreach (Point pToCheck in points)
                 {
-                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(this)) result[0] += 2;
-                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Bunny())) result[1] += 2;
+                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(this)) result[0] += 10;
+                    if (currentGrid[pToCheck.X, pToCheck.Y].Equivalent(new Bunny())) result[1] += 10;
                 }
             return result;
         }
@@ -218,6 +219,7 @@ namespace Smart_Snake_Remastered.Models
         {
             Age++;
             _energy++;
+            if (Scaredness > 0) Scaredness -= ((Scaredness / 2) + ( Scaredness % 10));
             if (BirthCooldown > 0) BirthCooldown--;
             if (Age % 15 == 0)
             {
@@ -274,7 +276,7 @@ namespace Smart_Snake_Remastered.Models
                                 {
                                     newLifeList.Add(new Birth(this, s));
                                     ChangeDirection();
-                                    BirthCooldown += 40;
+                                    BirthCooldown += 10;
                                 }
                                 isSnakeHead = true;
                                 break;
@@ -299,7 +301,7 @@ namespace Smart_Snake_Remastered.Models
                     if (BirthCooldown <= 0)
                     {
                         newLifeList.Add(new Birth(this, this));
-                        BirthCooldown += 40;
+                        BirthCooldown += 10;
                     }
                 }
             }

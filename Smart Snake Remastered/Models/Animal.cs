@@ -26,6 +26,7 @@ namespace Smart_Snake_Remastered.Models
         public Point Location;
         public Direction Direction;
         public uint Age;
+        public uint Scaredness = 0;
         protected uint _energy;
         protected uint _health;
 
